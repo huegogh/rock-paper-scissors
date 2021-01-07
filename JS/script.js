@@ -10,6 +10,8 @@ const playArea = document.querySelector('#playArea');
 let selectable = document.getElementsByClassName('selectable');
 selectable = Array.from(selectable);
 
+let firstChoice = false, secondChoice = false;
+
 selectable.forEach((element, i) => {
     element.addEventListener('click', () => {
         element.classList.remove('pulse');
@@ -51,12 +53,23 @@ async function getChoices(numberOfPlayers) {
 
 async function getResults(choice, twoPlayers) {
     const results = document.getElementById('results');
+    if(twoPlayers && firstChoice) secondChoice = choice;
+    if(!firstChoice) firstChoice = choice;
 
-    let cpuChoice;
-    if(!twoPlayers) cpuChoice = await fetch("https://csa2020studentapi.azurewebsites.net/rpsls")
+    if(!twoPlayers){
+        secondChoice = await fetch("https://csa2020studentapi.azurewebsites.net/rpsls")
         .then(response => response.text());
-    cpuChoice = cpuChoice.toLowerCase();
-    if(gameOutcomes[choice].includes(cpuChoice))results.innerText = 'Player Wins against ' + cpuChoice;
-    else if(choice == cpuChoice) results.innerText = 'tie';
-    else results.innerText = 'Player Loses to ' + cpuChoice;
+        secondChoice = secondChoice.toLowerCase();
+        if(gameOutcomes[firstChoice].includes(secondChoice))results.innerText = 'Player Wins against ' + secondChoice.replace(secondChoice[0],secondChoice[0].toUpperCase());
+        else if(firstChoice == secondChoice) results.innerText = 'tie';
+        else results.innerText = 'Player Loses to ' + secondChoice.replace(secondChoice[0],secondChoice[0].toUpperCase());
+    } else if(firstChoice && secondChoice){
+        if(gameOutcomes[firstChoice].includes(secondChoice))results.innerText = 'Player 1 Wins';
+        else if(firstChoice == secondChoice) results.innerText = 'tie';
+        else results.innerText = 'Player 2 Wins';
+        firstChoice = false, secondChoice = false;
+        setTimeout(() => {
+            results.innerHTML = '';
+        }, 3000);
+    }
 }
