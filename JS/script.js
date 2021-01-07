@@ -1,12 +1,20 @@
+const gameOutcomes = {
+    // userChoice wins against choices in array
+    'rock' : ['scissors', 'lizard'],
+    'paper' : ['rock', 'spock'],
+    'scissors' : ['paper', 'lizard'],
+    'lizard' : ['spock', 'paper'],
+    'spock' : ['rock', 'scissors']
+};
 const playArea = document.querySelector('#playArea');
 let selectable = document.getElementsByClassName('selectable');
 selectable = Array.from(selectable);
 
-selectable.forEach(element => {
+selectable.forEach((element, i) => {
     element.addEventListener('click', () => {
         element.classList.remove('pulse');
         playArea.classList.add('zoomerOut');
-        getChoices();
+        setTimeout(() => {getChoices(i)}, 1000);
     });
     element.addEventListener('mouseover', () => {
         element.classList.add('pulse')
@@ -17,17 +25,19 @@ selectable.forEach(element => {
     });
 });
 
-async function getChoices() {
+async function getChoices(numberOfPlayers) {
+    numberOfPlayers += 1;
+    let twoPlayers = numberOfPlayers == 2;
     const choices = await fetch('./HTMLObjects/choices.html').then(data => data.text());
     document.querySelector('#app').innerHTML = choices;
     selectable = document.getElementsByClassName('selectable');
     selectable = Array.from(selectable);
 
     selectable.forEach((element, i) => {
-        element.addEventListener('click', () => {
+        element.addEventListener('click', (e) => {
             element.classList.remove('pulse');
             playArea.classList.add('zoomerOut');
-            getResults(i);
+            getResults(e.target.innerText, twoPlayers);
         });
         element.addEventListener('mouseover', () => {
             element.classList.add('pulse')
@@ -39,22 +49,14 @@ async function getChoices() {
     });
 }
 
-function getResults(choice) {
-    switch (choice) {
-        case 0:
-            console.log('rock');
-            break;
-        case 1:
-            console.log('paper');
-            break;
-        case 2:
-            console.log('scissors');
-            break;
-        case 3:
-            console.log('lizzard');
-            break;
-        case 4:
-            console.log('spock');
-            break;
-    }
+async function getResults(choice, twoPlayers) {
+    const results = document.getElementById('results');
+
+    let cpuChoice;
+    if(!twoPlayers) cpuChoice = await fetch("https://csa2020studentapi.azurewebsites.net/rpsls")
+        .then(response => response.text());
+    cpuChoice = cpuChoice.toLowerCase();
+    if(gameOutcomes[choice].includes(cpuChoice))results.innerText = 'Player Wins against ' + cpuChoice;
+    else if(choice == cpuChoice) results.innerText = 'tie';
+    else results.innerText = 'Player Loses to ' + cpuChoice;
 }
