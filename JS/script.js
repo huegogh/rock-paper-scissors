@@ -14,6 +14,10 @@ let numOfRounds,
     roundsPlayed = 0;
 
 const find = (elementId) => document.getElementById(elementId);
+const addMouseEvents = (element) => {
+    element.addEventListener('mouseover', () => { element.classList.add('pulse') });
+    element.addEventListener('mouseout', () => { element.classList.remove('pulse') });
+}
 let app = find('app');
 
 async function getMainButtons() {
@@ -26,13 +30,11 @@ async function getMainButtons() {
             playArea.classList.add('zoomerOut');
             setTimeout(() => { getChoices(i + 1) }, 1000);
         });
-        element.addEventListener('mouseover', () => { element.classList.add('pulse') });
-        element.addEventListener('mouseout', () => { element.classList.remove('pulse') });
+        addMouseEvents(element);
     });
 }//getMainButtons
 
 async function getChoices(numberOfPlayers) {
-    console.log(numberOfPlayers);
     let twoPlayers = numberOfPlayers == 2;
     const rounds = await fetch('./HTMLObjects/numberOfRounds.html').then(data => data.text());
     app.innerHTML = rounds;
@@ -40,10 +42,9 @@ async function getChoices(numberOfPlayers) {
         element.addEventListener('click', () => {
             element.classList.remove('pulse');
             find('playArea').classList.add('zoomerOut');
-            setTimeout(() => getGame(i, twoPlayers), 1000);
+            setTimeout(() => {getGame(i, twoPlayers)}, 1000);
         });
-        element.addEventListener('mouseover', () => { element.classList.add('pulse') });
-        element.addEventListener('mouseout', () => { element.classList.remove('pulse') });
+        addMouseEvents(element);
     });
 }//getChoices
 
@@ -53,31 +54,22 @@ async function getGame(rounds, twoPlayers) {
     const choices = await fetch('./HTMLObjects/choices.html').then(data => data.text());
     app.innerHTML = choices;
     if (twoPlayers) twoPlayerText();
-    Array.from(document.getElementsByClassName('selectable')).forEach((element, i) => {
+    Array.from(document.getElementsByClassName('selectable')).forEach((element) => {
         element.addEventListener('click', (e) => {
-            console.log(buttonEnabled);
             if (buttonEnabled) {
                 buttonEnabled = false;
-                console.log('button was clicked');
                 element.classList.remove('pulse');
                 getRoundResults(e.target.innerText, twoPlayers);
                 setTimeout(() => { buttonEnabled = true }, 1000);
             }
         });
-        element.addEventListener('mouseover', () => { element.classList.add('pulse') });
-        element.addEventListener('mouseout', () => { element.classList.remove('pulse') });
+        addMouseEvents(element);
     });
 }//getGame
 
 function twoPlayerText() {
-    const resultsTitle = find('resultsTitle');
-    if (!firstChoice) {
-        resultsTitle.innerText = "Player 2 avert your eyes";
-        results.innerText = 'Player 1 select a weapon';
-    } else {
-        resultsTitle.innerText = "Player 1 avert your eyes";
-        results.innerText = 'Player 2 select a weapon';
-    }
+        resultsTitle.innerText = firstChoice ? "Player 1 avert your eyes" :  "Player 2 avert your eyes";
+        results.innerText = firstChoice ? 'Player 2 select a weapon' : 'Player 1 select a weapon';
 }// twoPlayerText
 
 async function getRoundResults(choice, twoPlayers) {
@@ -131,8 +123,7 @@ function getFinalResults(p2Title) {
         playArea.classList.add('zoomerOut');
         getMainButtons();
     });
-    returnButton.addEventListener('mouseover', () => { returnButton.classList.add('pulse') });
-    returnButton.addEventListener('mouseout', () => { returnButton.classList.remove('pulse') });
+    addMouseEvents(returnButton);
     p1Score = 0;
     p2Score = 0;
     roundsPlayed = 0;
