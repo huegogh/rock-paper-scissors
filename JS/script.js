@@ -6,35 +6,37 @@ const gameOutcomes = {
     'lizard': ['spock', 'paper'],
     'spock': ['rock', 'scissors']
 };
-const playArea = document.querySelector('#playArea');
-let selectable = document.getElementsByClassName('selectable');
-selectable = Array.from(selectable);
-
 let firstChoice = false, secondChoice = false;
 let numOfRounds, p1Score = 0, p2Score = 0, roundsPlayed = 0;
 
-selectable.forEach((element, i) => {
-    element.addEventListener('click', () => {
-        element.classList.remove('pulse');
-        playArea.classList.add('zoomerOut');
-        setTimeout(() => { getChoices(i) }, 1000);
-    });
-    element.addEventListener('mouseover', () => {
-        element.classList.add('pulse')
+async function getMainButtons() {
+    const mainButtons = await fetch('./HTMLObjects/mainmenuButtons.html').then(data => data.text());
+    document.querySelector('#app').innerHTML = mainButtons;
+    const playArea = document.querySelector('#playArea');
+    const selectable = Array.from(document.getElementsByClassName('selectable'));
+    selectable.forEach((element, i) => {
+        element.addEventListener('click', () => {
+            element.classList.remove('pulse');
+            playArea.classList.add('zoomerOut');
+            setTimeout(() => { getChoices(i) }, 1000);
+        });
+        element.addEventListener('mouseover', () => {
+            element.classList.add('pulse')
+        });
+
+        element.addEventListener('mouseout', () => {
+            element.classList.remove('pulse')
+        });
     });
 
-    element.addEventListener('mouseout', () => {
-        element.classList.remove('pulse')
-    });
-});
+}
 
 async function getChoices(numberOfPlayers) {
     numberOfPlayers += 1;
     let twoPlayers = numberOfPlayers == 2;
     const rounds = await fetch('./HTMLObjects/numberOfRounds.html').then(data => data.text());
     document.querySelector('#app').innerHTML = rounds;
-    selectable = document.getElementsByClassName('selectable');
-    selectable = Array.from(selectable);
+    const selectable = Array.from(document.getElementsByClassName('selectable'));
 
     selectable.forEach((element, i) => {
         element.addEventListener('click', () => {
@@ -56,13 +58,11 @@ async function getGame(rounds, twoPlayers) {
     numOfRounds = rounds === 0 ? 1 : rounds === 1 ? 5 : 7;
     const choices = await fetch('./HTMLObjects/choices.html').then(data => data.text());
     document.querySelector('#app').innerHTML = choices;
-    selectable = document.getElementsByClassName('selectable');
-    selectable = Array.from(selectable);
+    const selectable = Array.from(document.getElementsByClassName('selectable'));
 
     selectable.forEach((element, i) => {
         element.addEventListener('click', (e) => {
             element.classList.remove('pulse');
-            playArea.classList.add('zoomerOut');
             getResults(e.target.innerText, twoPlayers);
         });
         element.addEventListener('mouseover', () => {
@@ -76,11 +76,28 @@ async function getGame(rounds, twoPlayers) {
 }
 
 async function getResults(choice, twoPlayers) {
+
     const results = document.getElementById('results');
     results.innerText = '';
     if (twoPlayers && firstChoice) secondChoice = choice;
     if (!firstChoice) firstChoice = choice;
     let p2Title = 'Player 2';
+    const returnButton = document.getElementById('returnButton');
+    returnButton.addEventListener('click', () => {
+        // element.classList.remove('pulse');
+        playArea.classList.add('zoomerOut');
+        // getResults(e.target.innerText, twoPlayers);
+        console.log('return home');
+        getMainButtons();
+    });
+    returnButton.addEventListener('mouseover', () => {
+        returnButton.classList.add('pulse')
+    });
+
+    returnButton.addEventListener('mouseout', () => {
+        returnButton.classList.remove('pulse')
+    });
+
 
     if (!twoPlayers) {
         p2Title = 'CPU';
@@ -98,6 +115,7 @@ async function getResults(choice, twoPlayers) {
         roundsPlayed++;
     } else if (firstChoice && secondChoice) {
         if (gameOutcomes[firstChoice].includes(secondChoice)) {
+            p1Score++;
             results.innerText = 'Player 1 Wins';
         } else if (firstChoice == secondChoice) results.innerText = 'tie';
         else {
@@ -117,6 +135,9 @@ async function getResults(choice, twoPlayers) {
         document.getElementById('finalResultsText').innerText = p1Score > p2Score ? 'Player 1 Wins the Game' : p1Score < p2Score ? p2Title + ' Wins the Game' : 'Tie Game';
         p1Score = 0;
         p2Score = 0;
+        roundsPlayed = 0;
+        firstChoice = false;
     }
 }
 
+getMainButtons();
