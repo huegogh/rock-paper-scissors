@@ -100,17 +100,7 @@ async function getResults(choice, twoPlayers) {
     if (twoPlayers && firstChoice) secondChoice = choice;
     if (!firstChoice) firstChoice = choice;
     let p2Title = 'Player 2';
-
-
-    if (twoPlayers) {
-        if (!firstChoice) {
-            resultsTitle.innerText = "Player 2 avert your eyes";
-            results.innerText = 'Player 1, select a weapon';
-        } else {
-            resultsTitle.innerText = "Player 1 avert your eyes";
-            results.innerText = 'Player 2, select a weapon';
-        }
-    }
+    if (twoPlayers) twoPlayerText();
 
 
     if (!twoPlayers) {
