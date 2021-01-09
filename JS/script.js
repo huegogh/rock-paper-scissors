@@ -85,6 +85,7 @@ async function getRoundResults(choice, twoPlayers) {
         p2Title = 'CPU';
         secondChoice = await fetch("https://csa2020studentapi.azurewebsites.net/rpsls").then(response => response.text());
         secondChoice = secondChoice.toLowerCase();
+        resultsTitle.innerText = roundsPlayed == numOfRounds - 1 ? 'Final Round Results' : `Round ${roundsPlayed + 1} Results`;
         if (gameOutcomes[firstChoice].includes(secondChoice)) {
             p1Score++;
             results.innerText = 'Player Wins against ' + secondChoice.replace(secondChoice[0], secondChoice[0].toUpperCase());
@@ -96,7 +97,7 @@ async function getRoundResults(choice, twoPlayers) {
         roundsPlayed++;
         firstChoice = false;
     } else if (firstChoice && secondChoice) {
-        resultsTitle.innerText = 'Round Results';
+        resultsTitle.innerText = roundsPlayed == numOfRounds - 1 ? 'Final Round Results' : `Round ${roundsPlayed + 1} Results`;
         if (gameOutcomes[firstChoice].includes(secondChoice)) {
             p1Score++;
             results.innerText = 'Player 1 Wins';
@@ -107,7 +108,7 @@ async function getRoundResults(choice, twoPlayers) {
         }
         firstChoice = false, secondChoice = false;
         roundsPlayed++;
-        if (roundsPlayed !== numOfRounds) setTimeout(() => { twoPlayerText() }, 1250);
+        if (roundsPlayed !== numOfRounds) setTimeout(() => { twoPlayerText() }, 1500);
     }
     if (roundsPlayed === numOfRounds) getFinalResults(p2Title);
 
